@@ -1,29 +1,39 @@
 import React from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, FlatList, ImageSourcePropType } from 'react-native';
+import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, ImageSourcePropType } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons'; // For icons
 import { useRouter, useLocalSearchParams } from 'expo-router';  // Use useRouter and useLocalSearchParams from expo-router
+import { pinsData } from '@/constants/pinData';  // Import the local data
 
 export default function PinDetailScreen() {
   const router = useRouter();
-  const { imageUrl, title } = useLocalSearchParams();
+  const { id } = useLocalSearchParams(); // Retrieve the id from the params
 
-  let imageSource: ImageSourcePropType;
-  if (typeof imageUrl === 'string') {
-    imageSource = { uri: imageUrl };
-  } else {
-    imageSource = imageUrl as ImageSourcePropType;
+  // Find the pin data based on the id passed
+  const pin = pinsData.find((p) => p.id === id);
+
+  // Ensure the pin exists, otherwise default to empty
+  if (!pin) {
+    return <Text>Pin not found</Text>;
   }
+
+  const { imageUrl, title } = pin;
+
+  const imageSource: ImageSourcePropType =
+    typeof imageUrl === 'string' ? { uri: imageUrl } : (imageUrl as ImageSourcePropType);
 
   const comments = [
     { id: '1', username: 'J', comment: 'I had that exact Laredo, ‘84’ Living in the Northeast the weather was not kind...', likes: 39 },
+    { id: '2', username: 'K', comment: 'Nice picture! Reminds me of the old days.', likes: 25 },
+    // Add more comments as needed
   ];
 
   const handleBackPress = () => {
     router.back();
   };
 
-  return (
-    <ScrollView style={styles.container}>
+  const renderHeader = () => (
+    <View>
+      {/* Image Section */}
       <View style={styles.imageContainer}>
         <Image source={imageSource} style={styles.image} />
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
@@ -31,7 +41,9 @@ export default function PinDetailScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Pin Info Section */}
       <View style={styles.infoContainer}>
+        {/* Profile Section */}
         <View style={styles.profileSection}>
           <Image source={{ uri: 'https://via.placeholder.com/40' }} style={styles.profileImage} />
           <View style={styles.profileInfo}>
@@ -43,8 +55,10 @@ export default function PinDetailScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Pin Title */}
         <Text style={styles.pinTitle}>{title}</Text>
 
+        {/* Buttons Section */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.heartButton}>
             <Ionicons name="heart-outline" size={24} color="#000" />
@@ -58,29 +72,34 @@ export default function PinDetailScreen() {
         </View>
       </View>
 
-      <View style={styles.commentsSection}>
-        <Text style={styles.commentsTitle}>6 comments</Text>
-        <FlatList
-          data={comments}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.commentContainer}>
-              <Text style={styles.commentUsername}>{item.username}</Text>
-              <Text style={styles.commentText}>{item.comment}</Text>
-              <View style={styles.commentMeta}>
-                <Ionicons name="heart-outline" size={16} color="#000" />
-                <Text style={styles.commentLikes}>{item.likes}</Text>
-              </View>
-            </View>
-          )}
-        />
-        <TextInput style={styles.addCommentInput} placeholder="Add a comment" placeholderTextColor="#888" />
-      </View>
+      {/* Comments Section Title */}
+      <Text style={styles.commentsTitle}>6 comments</Text>
+    </View>
+  );
 
-      <View style={styles.moreToExplore}>
-        <Text style={styles.moreToExploreText}>More to explore</Text>
-      </View>
-    </ScrollView>
+  return (
+    <FlatList
+      data={comments}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={renderHeader}  // Header with image, title, etc.
+      renderItem={({ item }) => (
+        <View style={styles.commentContainer}>
+          <Text style={styles.commentUsername}>{item.username}</Text>
+          <Text style={styles.commentText}>{item.comment}</Text>
+          <View style={styles.commentMeta}>
+            <Ionicons name="heart-outline" size={16} color="#000" />
+            <Text style={styles.commentLikes}>{item.likes}</Text>
+          </View>
+        </View>
+      )}
+      ListFooterComponent={() => (
+        <TextInput
+          style={styles.addCommentInput}
+          placeholder="Add a comment"
+          placeholderTextColor="#888"
+        />
+      )}
+    />
   );
 }
 
@@ -175,16 +194,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
-  commentsSection: {
-    paddingHorizontal: 15,
-    marginTop: 20,
-  },
   commentsTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 10,
+    paddingLeft: 15,
   },
   commentContainer: {
+    paddingHorizontal: 15,
     marginBottom: 15,
   },
   commentUsername: {
@@ -208,6 +225,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f1f1f1',
     borderRadius: 10,
+    marginHorizontal: 15,
   },
   moreToExplore: {
     padding: 15,

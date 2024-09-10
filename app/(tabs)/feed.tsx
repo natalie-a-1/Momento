@@ -1,44 +1,25 @@
 import React, { useState } from 'react';
-import { SafeAreaView, FlatList, StyleSheet, View, Text, TouchableOpacity, useColorScheme, Dimensions } from 'react-native';
+import { SafeAreaView, FlatList, StyleSheet, View, Text, TouchableOpacity, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import Pin from '@/components/Pin';
-
-type PinData = {
-  id: string;
-  imageUrl: any;
-  title: string;
-};
-
-const initialFriendsData: PinData[] = [
-  { id: '1', imageUrl: require('@/assets/images/aesthetic/cards.png'), title: 'Friends Pin 1' },
-  { id: '2', imageUrl: require('@/assets/images/aesthetic/dog.png'), title: 'Friends Pin 2' },
-  { id: '3', imageUrl: require('@/assets/images/aesthetic/drinks.png'), title: 'Friends Pin 3' },
-  { id: '4', imageUrl: require('@/assets/images/aesthetic/home.png'), title: 'Friends Pin 4' },
-];
-
-const initialFollowingData: PinData[] = [
-  { id: '5', imageUrl: require('@/assets/images/aesthetic/cards.png'), title: 'Following Pin 1' },
-  { id: '6', imageUrl: require('@/assets/images/aesthetic/dog.png'), title: 'Following Pin 2' },
-  { id: '7', imageUrl: require('@/assets/images/aesthetic/drinks.png'), title: 'Following Pin 3' },
-  { id: '8', imageUrl: require('@/assets/images/aesthetic/home.png'), title: 'Following Pin 4' },
-];
+import { pinsData } from '@/constants/pinData';  // Ensure this is your data file path
 
 export default function FeedScreen() {
   const [selectedTab, setSelectedTab] = useState<'Friends' | 'Following'>('Friends');
-  const [friendsData, setFriendsData] = useState(initialFriendsData);
-  const [followingData, setFollowingData] = useState(initialFollowingData);
+  const [friendsData, setFriendsData] = useState(pinsData);  // Data for friends
+  const [followingData, setFollowingData] = useState(pinsData);  // Data for following
 
   const router = useRouter();
   const colorScheme = useColorScheme();
 
+  // Determine which data to show based on the selected tab
   const data = selectedTab === 'Friends' ? friendsData : followingData;
 
-  const handlePinPress = (pin: PinData) => {
+  const handlePinPress = (pinId: string) => {
     router.push({
       pathname: '/PinDetail',
       params: {
-        imageUrl: pin.imageUrl,
-        title: pin.title,
+        id: pinId,  // Pass only the id
       },
     });
   };
@@ -57,13 +38,14 @@ export default function FeedScreen() {
     }
   };
 
+  // Handle tab switching between Friends and Following
   const handleTabPress = (tab: 'Friends' | 'Following') => {
     setSelectedTab(tab);
   };
 
   return (
     <SafeAreaView style={colorScheme === 'dark' ? stylesDark.container : styles.container}>
-      {/* Header */}
+      {/* Header for Friends and Following Tabs */}
       <View style={styles.headerContainer}>
         <View style={styles.tabsContainer}>
           <TouchableOpacity onPress={() => handleTabPress('Friends')} style={styles.tabItem}>
@@ -79,13 +61,13 @@ export default function FeedScreen() {
         </View>
       </View>
 
-      {/* Feed */}
+      {/* Pinterest-style Feed */}
       <FlatList
         data={data}
         keyExtractor={(item) => item.id}
         numColumns={2}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handlePinPress(item)}>
+          <TouchableOpacity onPress={() => handlePinPress(item.id)}>
             <Pin imageUrl={item.imageUrl} title={item.title} />
           </TouchableOpacity>
         )}
