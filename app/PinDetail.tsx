@@ -45,35 +45,24 @@ export default function PinDetailScreen() {
       <View style={styles.infoContainer}>
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <Image source={{ uri: 'https://via.placeholder.com/40' }} style={styles.profileImage} />
+          <Image source={require('@/assets/images/aesthetic/face.png')} style={styles.profileImage} />
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Bronc</Text>
-            <Text style={styles.profileFollowers}>277 followers</Text>
+            <Text style={styles.profileName}>Emma</Text>
           </View>
-          <TouchableOpacity style={styles.followButton}>
-            <Text style={styles.followButtonText}>Follow</Text>
+          <TouchableOpacity style={styles.heartButton}>
+            <Ionicons name="heart-outline" size={24} color="#000" />
           </TouchableOpacity>
         </View>
 
         {/* Pin Title */}
         <Text style={styles.pinTitle}>{title}</Text>
-
-        {/* Buttons Section */}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.heartButton}>
-            <Ionicons name="heart-outline" size={24} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.visitButton}>
-            <Text style={styles.visitButtonText}>Visit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
+      {/* Horizontal line above the comments */}
+      <View style={styles.horizontalLine} />
+
       {/* Comments Section Title */}
-      <Text style={styles.commentsTitle}>6 comments</Text>
+      <Text style={styles.commentsTitle}>Comments</Text>
     </View>
   );
 
@@ -107,15 +96,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 40, // Add padding to avoid iPhone notch area
+    marginTop: 40
   },
   imageContainer: {
     width: '100%',
-    height: 400,
+    height: 400, // Control the height of the image container
+    overflow: 'hidden', // Hide anything that goes outside the border
   },
   image: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderTopLeftRadius: 20, // Rounded top left corner
+    borderTopRightRadius: 20, // Rounded top right corner
   },
   backButton: {
     position: 'absolute',
@@ -146,53 +140,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  profileFollowers: {
-    fontSize: 12,
-    color: '#888',
-  },
-  followButton: {
-    backgroundColor: '#eee',
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-  },
-  followButtonText: {
-    color: '#000',
-    fontWeight: '600',
+  heartButton: {
+    padding: 10,
   },
   pinTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  heartButton: {
-    padding: 10,
-  },
-  visitButton: {
-    backgroundColor: '#eee',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 20,
-  },
-  visitButtonText: {
-    color: '#000',
-    fontWeight: '600',
-  },
-  saveButton: {
-    backgroundColor: '#e60023',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 20,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+  horizontalLine: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 10,
+    marginHorizontal: 15,
   },
   commentsTitle: {
     fontSize: 16,
@@ -226,12 +186,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f1f1',
     borderRadius: 10,
     marginHorizontal: 15,
-  },
-  moreToExplore: {
-    padding: 15,
-  },
-  moreToExploreText: {
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
