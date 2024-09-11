@@ -3,6 +3,7 @@ import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, I
 import Ionicons from '@expo/vector-icons/Ionicons'; // For icons
 import { useRouter, useLocalSearchParams } from 'expo-router';  // Use useRouter and useLocalSearchParams from expo-router
 import { pinsData } from '@/constants/pinData';  // Import the local data
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PinDetailScreen() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function PinDetailScreen() {
       <View style={styles.imageContainer}>
         <Image source={imageSource} style={styles.image} />
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={30} color="#fff" />
+          <Ionicons name="arrow-back" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -67,6 +68,7 @@ export default function PinDetailScreen() {
   );
 
   return (
+    <SafeAreaView>
     <FlatList
       data={comments}
       keyExtractor={(item) => item.id}
@@ -89,6 +91,7 @@ export default function PinDetailScreen() {
         />
       )}
     />
+    </SafeAreaView>
   );
 }
 
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 400, // Control the height of the image container
+    height: 550, // Control the height of the image container
     overflow: 'hidden', // Hide anything that goes outside the border
   },
   image: {
