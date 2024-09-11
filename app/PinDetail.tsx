@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, useColorScheme } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Animated, Easing, TouchableWithoutFeedback, useColorScheme } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons'; // For icons
 import { useRouter, useLocalSearchParams } from 'expo-router';  // Use useRouter and useLocalSearchParams from expo-router
 import { pinsData } from '@/constants/pinData';  // Import the local data
@@ -29,19 +29,54 @@ export default function PinDetailScreen() {
   }
 
   const { imageUrl, title } = pin;
-
   const imageSource = typeof imageUrl === 'string' ? { uri: imageUrl } : imageUrl;
 
   // State to manage the heart status of the main post
   const [postLiked, setPostLiked] = useState(false);
   // State to manage the heart status of each comment, where keys are comment ids and values are booleans
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
-
+  
   const comments: Comment[] = [
     { id: '1', username: 'J', comment: 'I had that exact Laredo, ‘84’ Living in the Northeast the weather was not kind...', likes: 39 },
     { id: '2', username: 'K', comment: 'Nice picture! Reminds me of the old days.', likes: 25 },
     // Add more comments as needed
   ];
+
+  // State for the animated heart
+  const animatedHeartOpacity = useRef(new Animated.Value(0)).current;
+  const animatedHeartScale = useRef(new Animated.Value(0.5)).current;
+
+  // Animate the heart when the image is double-tapped
+  const animateHeart = () => {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(animatedHeartOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animatedHeartScale, {
+          toValue: 1.5,
+          duration: 200,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(animatedHeartOpacity, {
+          toValue: 0,
+          duration: 400,
+          delay: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animatedHeartScale, {
+          toValue: 1.0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  };
 
   const handleBackPress = () => {
     router.back();
@@ -50,6 +85,14 @@ export default function PinDetailScreen() {
   // Toggle heart for the main post
   const togglePostHeart = () => {
     setPostLiked(!postLiked);
+  };
+
+  // Double-tap on the image to like the post
+  const handleImageDoubleTap = () => {
+    if (!postLiked) {
+      setPostLiked(true);
+      animateHeart(); // Animate the heart on double-tap
+    }
   };
 
   // Toggle heart for individual comments
@@ -63,12 +106,24 @@ export default function PinDetailScreen() {
   const renderHeader = () => (
     <View>
       {/* Image Section */}
-      <View style={styles.imageContainer}>
-        <Image source={imageSource} style={styles.image} />
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+      <TouchableWithoutFeedback onPress={handleImageDoubleTap}>
+        <View style={styles.imageContainer}>
+          <Image source={imageSource} style={styles.image} />
+          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
           <Ionicons name="arrow-back" size={20} color="#fff" />
         </TouchableOpacity>
-      </View>
+          {/* Animated Heart */}
+          <Animated.View style={[
+            styles.animatedHeart,
+            {
+              opacity: animatedHeartOpacity,
+              transform: [{ scale: animatedHeartScale }],
+            },
+          ]}>
+            <Ionicons name="heart" size={100} color="white" />
+          </Animated.View>
+        </View>
+      </TouchableWithoutFeedback>
 
       {/* Pin Info Section */}
       <View style={styles.infoContainer}>
@@ -82,7 +137,7 @@ export default function PinDetailScreen() {
             <Ionicons
               name={postLiked ? 'heart' : 'heart-outline'}
               size={24}
-              color={postLiked ? 'red' : '#000'}
+              color={postLiked ? 'red' : isDarkMode ? '#fff' : '#000'}
             />
           </TouchableOpacity>
         </View>
@@ -141,6 +196,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 550, // Control the height of the image container
     overflow: 'hidden', // Hide anything that goes outside the border
+    justifyContent: 'center', // Center the animated heart
+    alignItems: 'center',   // Center the animated heart
   },
   image: {
     width: '100%',
@@ -148,6 +205,11 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderTopLeftRadius: 20, // Rounded top left corner
     borderTopRightRadius: 20, // Rounded top right corner
+  },
+  animatedHeart: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backButton: {
     position: 'absolute',
